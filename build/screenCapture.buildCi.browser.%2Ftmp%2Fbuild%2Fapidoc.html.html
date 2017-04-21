@@ -1,0 +1,338 @@
+<html><head></head><body><div class="apidocDiv">
+<style>
+/*csslint
+*/
+.apidocDiv {
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.apidocDiv a[href] {
+    color: #33f;
+    font-weight: bold;
+    text-decoration: none;
+}
+.apidocDiv a[href]:hover {
+    text-decoration: underline;
+}
+.apidocCodeCommentSpan {
+    background: #bbf;
+    color: #000;
+    display: block;
+}
+.apidocCodeKeywordSpan {
+    color: #d00;
+    font-weight: bold;
+}
+.apidocCodePre {
+    background: #eef;
+    border: 1px solid;
+    color: #777;
+    padding: 5px;
+    white-space: pre-wrap;
+}
+.apidocFooterDiv {
+    margin-top: 20px;
+    text-align: center;
+}
+.apidocModuleLi {
+    margin-top: 10px;
+}
+.apidocSectionDiv {
+    border-top: 1px solid;
+    margin-top: 20px;
+}
+.apidocSignatureSpan {
+    color: #777;
+    font-weight: bold;
+}
+</style>
+<h1>api documentation for
+    <a href="https://github.com/guyht/notp">notp (v2.0.3)</a>
+</h1>
+<h4>Node One Time Password library, supports HOTP, TOTP and works with Google Authenticator</h4>
+<div class="apidocSectionDiv"><a href="#apidoc.tableOfContents" id="apidoc.tableOfContents"><h1>table of contents</h1></a><ol>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.notp">module notp</a><ol>
+
+        <li>
+
+            <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">notp.</span>hotp</span>
+
+        </li>
+
+        <li>
+
+            <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">notp.</span>totp</span>
+
+        </li>
+
+    </ol></li>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.notp.hotp">module notp.hotp</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.notp.hotp.gen">
+            function <span class="apidocSignatureSpan">notp.hotp.</span>gen
+            <span class="apidocSignatureSpan">(key, opt)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.notp.hotp.verify">
+            function <span class="apidocSignatureSpan">notp.hotp.</span>verify
+            <span class="apidocSignatureSpan">(token, key, opt)</span>
+            </a>
+
+        </li>
+
+    </ol></li>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.notp.totp">module notp.totp</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.notp.totp.gen">
+            function <span class="apidocSignatureSpan">notp.totp.</span>gen
+            <span class="apidocSignatureSpan">(key, opt)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.notp.totp.verify">
+            function <span class="apidocSignatureSpan">notp.totp.</span>verify
+            <span class="apidocSignatureSpan">(token, key, opt)</span>
+            </a>
+
+        </li>
+
+    </ol></li>
+
+</ol></div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.notp" id="apidoc.module.notp">module notp</a></h1>
+
+
+
+
+
+</div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.notp.hotp" id="apidoc.module.notp.hotp">module notp.hotp</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.notp.hotp.gen" id="apidoc.element.notp.hotp.gen">
+        function <span class="apidocSignatureSpan">notp.hotp.</span>gen
+        <span class="apidocSignatureSpan">(key, opt)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">gen = function (key, opt) {
+	key = key || '';
+	opt = opt || {};
+	var counter = opt.counter || 0;
+
+	var p = 6;
+
+	// Create the byte array
+	var b = new Buffer(intToBytes(counter));
+
+	var hmac = crypto.createHmac('sha1', new Buffer(key));
+
+	// Update the HMAC with the byte array
+	var digest = hmac.update(b).digest('hex');
+
+	// Get byte array
+	var h = hexToBytes(digest);
+
+	// Truncate
+	var offset = h[19] &amp; 0xf;
+	var v = (h[offset] &amp; 0x7f) &lt;&lt; 24 |
+		(h[offset + 1] &amp; 0xff) &lt;&lt; 16 |
+		(h[offset + 2] &amp; 0xff) &lt;&lt; 8  |
+		(h[offset + 3] &amp; 0xff);
+
+	v = v + '';
+
+	return v.substr(v.length - p, p);
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+&gt; i.e. if `window = 5` and `counter = 1000` all tokens between 995 and 1005 will be checked against the supplied token
+&gt; Default - 6
+
+**time**
+&gt; The time step of the counter. This must be the same for every request and is used to calculate C.
+&gt; Default - 30
+
+##hotp.<span class="apidocCodeKeywordSpan">gen</span>(key, opt)
+
+Return a counter based one time password
+
+### opt
+**counter**
+&gt; Counter value. This should be stored by the application, must be user specific, and be incremented for each request.
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.notp.hotp.verify" id="apidoc.element.notp.hotp.verify">
+        function <span class="apidocSignatureSpan">notp.hotp.</span>verify
+        <span class="apidocSignatureSpan">(token, key, opt)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">verify = function (token, key, opt) {
+	opt = opt || {};
+	var window = opt.window || 50;
+	var counter = opt.counter || 0;
+
+	// Now loop through from C to C + W to determine if there is
+	// a correct code
+	for(var i = counter - window; i &lt;=  counter + window; ++i) {
+		opt.counter = i;
+		if(this.gen(key, opt) === token) {
+			// We have found a matching code, trigger callback
+			// and pass offset
+			return { delta: i - counter };
+		}
+	}
+
+	// If we get to here then no codes have matched, return null
+	return null;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+//.... some initial login code, that receives the user details and TOTP / HOTP token
+
+var key = 'secret key for user... could be stored in DB';
+var token = 'user supplied one time use token';
+
+// Check TOTP is correct (HOTP if hotp pass type)
+var login = notp.totp.<span class="apidocCodeKeywordSpan">verify</span>(token, key);
+
+// invalid token if login is null
+if (!login) {
+    return console.log('Token invalid');
+}
+
+// valid token
+...</pre></li>
+    </ul>
+
+
+</div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.notp.totp" id="apidoc.module.notp.totp">module notp.totp</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.notp.totp.gen" id="apidoc.element.notp.totp.gen">
+        function <span class="apidocSignatureSpan">notp.totp.</span>gen
+        <span class="apidocSignatureSpan">(key, opt)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">gen = function (key, opt) {
+	opt = opt || {};
+	var time = opt.time || 30;
+	var _t = new Date().getTime();;
+
+	// Time has been overwritten.
+	if(opt._t) {
+		if(process.env.NODE_ENV != 'test') {
+			throw new Error('cannot overwrite time in non-test environment!');
+		}
+		_t = opt._t;
+	}
+
+	// Determine the value of the counter, C
+	// This is the number of time steps in seconds since T0
+	opt.counter = Math.floor((_t / 1000) / time);
+
+	return hotp.gen(key, opt);
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+&gt; i.e. if `window = 5` and `counter = 1000` all tokens between 995 and 1005 will be checked against the supplied token
+&gt; Default - 6
+
+**time**
+&gt; The time step of the counter. This must be the same for every request and is used to calculate C.
+&gt; Default - 30
+
+##hotp.<span class="apidocCodeKeywordSpan">gen</span>(key, opt)
+
+Return a counter based one time password
+
+### opt
+**counter**
+&gt; Counter value. This should be stored by the application, must be user specific, and be incremented for each request.
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.notp.totp.verify" id="apidoc.element.notp.totp.verify">
+        function <span class="apidocSignatureSpan">notp.totp.</span>verify
+        <span class="apidocSignatureSpan">(token, key, opt)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">verify = function (token, key, opt) {
+	opt = opt || {};
+	var time = opt.time || 30;
+	var _t = new Date().getTime();
+
+	// Time has been overwritten.
+	if(opt._t) {
+		if(process.env.NODE_ENV != 'test') {
+			throw new Error('cannot overwrite time in non-test environment!');
+		}
+		_t = opt._t;
+	}
+
+	// Determine the value of the counter, C
+	// This is the number of time steps in seconds since T0
+	opt.counter = Math.floor((_t / 1000) / time);
+
+	return hotp.verify(token, key, opt);
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+//.... some initial login code, that receives the user details and TOTP / HOTP token
+
+var key = 'secret key for user... could be stored in DB';
+var token = 'user supplied one time use token';
+
+// Check TOTP is correct (HOTP if hotp pass type)
+var login = notp.totp.<span class="apidocCodeKeywordSpan">verify</span>(token, key);
+
+// invalid token if login is null
+if (!login) {
+    return console.log('Token invalid');
+}
+
+// valid token
+...</pre></li>
+    </ul>
+
+
+</div>
+
+<div class="apidocFooterDiv">
+    [ this document was created with
+    <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a>
+    ]
+</div>
+</div>
+</body></html>
